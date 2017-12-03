@@ -21,7 +21,7 @@ The `/config/elasticsearch/plugins` folder is mapped to the plugins folder in th
 
 ## Setup
 
-1. `git clone -b multi-site-config https://github.com/rahulsprajapati/wp-local-docker.git <my-project-name>`
+1. `git clone https://github.com/rahulsprajapati/wp-local-docker.git <my-project-name>`
 1. `cd <my-project-name>`
 1. `docker-compose up -d`
 1. Make ./dcwp.sh executable file.
