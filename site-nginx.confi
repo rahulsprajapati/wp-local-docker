@@ -1,0 +1,22 @@
+server {
+
+
+    server_name lead.akashsoni.com   www.lead.akashsoni.com;
+
+
+    access_log /var/log/nginx/lead.akashsoni.com.access.log rt_cache; 
+    error_log /var/log/nginx/lead.akashsoni.com.error.log;
+
+
+    root /var/www/lead.akashsoni.com/htdocs;
+    
+    
+
+    index index.php index.html index.htm;
+
+
+    include common/php.conf;      
+    include common/wpcommon.conf;
+    include common/locations.conf;
+    include /var/www/lead.akashsoni.com/conf/nginx/*.conf;
+}

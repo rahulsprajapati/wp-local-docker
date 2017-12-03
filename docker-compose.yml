@@ -40,7 +40,7 @@ services:
       - memcached
       - elasticsearch
     volumes:
-      - "./wordpress:/var/www/html"
+      - "./www:/var/www"
       - "./config/php-fpm/php.ini:/usr/local/etc/php/php.ini"
       - "./config/php-fpm/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini"
     restart: always
@@ -53,9 +53,14 @@ services:
       - "80:80"
       - "443:443"
     image: nginx:latest
+    links:
+      - phpfpm
     volumes:
-      - "./wordpress:/var/www/html"
-      - "./config/nginx/default.conf:/etc/nginx/conf.d/default.conf"
+      - "./www:/var/www"
+      - "./config/nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./config/nginx/common:/etc/nginx/common"
+      - "./config/nginx/sites-available:/etc/nginx/sites-available"
+      - "./config/nginx/sites-enabled:/etc/nginx/sites-enabled"
       - "./config/certs:/etc/nginx/certs"
       - "./logs/nginx:/var/log/nginx"
     restart: always
