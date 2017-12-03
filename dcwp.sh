@@ -6,6 +6,11 @@ if [ -z "$1" ]
     exit;
 fi
 
+if [ ! "$(docker ps -q -f name=nginx)" ]; then
+	echo "Docker container are not running. Wait a min let me run that for you...";
+	docker-compose up -d
+fi
+
 sitename=$1
 action="create"
 
