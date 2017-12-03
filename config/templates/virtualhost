@@ -1,0 +1,26 @@
+server {
+	listen 80;
+	listen [::]:80;
+	listen 443 ssl;
+
+	ssl_certificate /etc/nginx/certs/localhost.crt;
+	ssl_certificate_key /etc/nginx/certs/localhost.key;
+
+	# Doesn't really matter because default server, but this way email doesn't throw errors
+	server_name {domain_name} www.{domain_name};
+
+	access_log   /var/www/{domain_name}/logs/access.log;
+	error_log    /var/www/{domain_name}/logs/error.log;
+
+	root /var/www/{domain_name}/htdocs;
+	index index.php index.html index.htm index.nginx-debian.html;
+
+	# This should match upload_max_filesize in php.ini
+	client_max_body_size 100m;
+
+	include common/wpsubdir.conf;
+	include common/php.conf;
+	include common/wpcommon-php7.conf;
+	include common/locations-php7.conf;
+	include /var/www/{domain_name}/conf/nginx/*.conf;
+}
