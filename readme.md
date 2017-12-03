@@ -1,6 +1,8 @@
-# WordPress Docker Development Environment
+# [Customized for Multiple sites] WordPress Docker Development Environment
 
-This is a Docker based local development environment for WordPress.
+Tested only on MAC. I'm using this for my local development only. 
+
+This is a forked repo of 10up wp local docker with updated script for adding new sites in one instance for local development of wordpress.
 
 ## What's Inside
 
@@ -19,14 +21,27 @@ The `/config/elasticsearch/plugins` folder is mapped to the plugins folder in th
 
 ## Setup
 
-1. `git clone https://github.com/10up/wp-local-docker.git <my-project-name>`
+1. `git clone -b multi-site-config https://github.com/rahulsprajapati/wp-local-docker.git <my-project-name>`
 1. `cd <my-project-name>`
-1. `docker-compose up`
-1. Run setup to download WordPress and create a `wp-config.php` file.
-	1. On Linux / Unix / OSX, run `sh bin/setup.sh`.
-	2. On Windows, run `./bin/setup`.
-1. Navigate to `http://localhost` in a browser to finish WordPress setup.
-	1. If you want to use a domain other than `http://localhost`, you'll need to add an entry to your hosts file. Ex: `127.0.0.1 docker.dev`
+1. `docker-compose up -d`
+1. Make ./dcwp.sh executable file.
+	
+	`chmod +x ./dcwp.sh`
+1. Now we can use dcwp.sh script to create wp sites. Follow below command.
+
+
+1. Create new site. 
+	
+	./dcwp.sh {site_name} create/delete {root_password}
+	
+	example ./dcwp.sh test1.dev create/delete
+	```
+	Note: if you want to add a entry to your /etc/hosts with this script then add 3rd arg for root password. This will be needed to write /etc/hosts file.
+	```
+2. ./dcwp.sh site list 
+	This will list all the created sites.
+
+> You can create dcwp.sh as global command by creating a symlink to your user bin dir. ex. ln -s ./dcwp.sh /usr/bin/dcwp 
 
 Default MySQL connection information (from within PHP-FPM container):
 
