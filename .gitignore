@@ -36,6 +36,17 @@ config.codekit
 /logs/*
 !/logs/.gitkeep
 
+/config/nginx/sites-available/*
+!/config/nginx/sites-available/.gitkeep
+!/config/nginx/sites-available/default
+
+/config/nginx/sites-enabled/*
+!/config/nginx/sites-enabled/.gitkeep
+
+/www/*
+!/www/.gitkeep
+!/www/html
+
 docker-compose.override.yml
 
 notes.md
