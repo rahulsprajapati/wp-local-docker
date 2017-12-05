@@ -6,9 +6,18 @@ if [ -z "$1" ]
     exit;
 fi
 
+file="$0"
+if [[ -L "$file" ]]
+then
+    FILE_PATH=$(readlink "${0}")
+    DIR=$(dirname "${FILE_PATH}")
+else
+    DIR="."
+fi
+
 if [ ! "$(docker ps -q -f name=nginx)" ]; then
 	echo "Docker container are not running. Wait a min let me run that for you...";
-	docker-compose up -d
+	docker-compose -f $DIR/docker-compose.yml up -d
 fi
 
 sitename=$1
@@ -23,24 +32,24 @@ fi
 
 if [ "$action" == "create" ]
 	then
-		if [ -f "./config/nginx/sites-available/$sitename" ];
+		if [ -f "$DIR/config/nginx/sites-available/$sitename" ];
 			then
 				echo "Site is already exist."
 				exit;
 		fi
-		sed "s/{domain_name}/$sitename/g" ./config/templates/virtualhost > ./config/nginx/sites-available/$sitename
-		docker-compose exec --user root mysql mysql -u root -ppassword -e "create database $dbname;";
+		sed "s/{domain_name}/$sitename/g" $DIR/config/templates/virtualhost > $DIR/config/nginx/sites-available/$sitename
+		docker-compose -f $DIR/docker-compose.yml exec --user root mysql mysql -u root -ppassword -e "create database $dbname;";
 
 
-		mkdir www/$sitename
-		mkdir www/$sitename/conf
-		mkdir www/$sitename/htdocs
-		mkdir www/$sitename/logs
+		mkdir $DIR/www/$sitename
+		mkdir $DIR/www/$sitename/conf
+		mkdir $DIR/www/$sitename/htdocs
+		mkdir $DIR/www/$sitename/logs
 
-		docker-compose exec --user root nginx ln -s /etc/nginx/sites-available/$sitename /etc/nginx/sites-enabled/$sitename
-		docker-compose exec --user root nginx service nginx restart
+		docker-compose -f $DIR/docker-compose.yml exec --user root nginx ln -s /etc/nginx/sites-available/$sitename /etc/nginx/sites-enabled/$sitename
+		docker-compose -f $DIR/docker-compose.yml exec --user root nginx service nginx restart
 
-		sitepath="./www/$sitename/htdocs"
+		sitepath="$DIR/www/$sitename/htdocs"
 		wpsitepath="/var/www/$sitename/htdocs"
 
 		if [ -f "$sitepath/wp-config.php" ];
@@ -48,9 +57,9 @@ if [ "$action" == "create" ]
 			echo "WordPress config file found."
 		else
 			echo "WordPress config file not found. Installing..."
-			docker-compose exec --user www-data phpfpm wp core --path=$wpsitepath download
-			docker-compose exec --user www-data phpfpm wp core --path=$wpsitepath config --dbhost=mysql --dbname=$dbname --dbuser=root --dbpass=password
-			docker-compose exec --user www-data phpfpm wp core --path=$wpsitepath install --url=$sitename --prompt
+			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath download
+			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath config --dbhost=mysql --dbname=$dbname --dbuser=root --dbpass=password
+			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath install --url="$sitename" --prompt
 		fi
 
 		if [ ! -z "$3" ]
@@ -59,20 +68,20 @@ if [ "$action" == "create" ]
 		fi
 	elif [ "$action" == "delete" ]
 	then
-		if [ ! -f "./config/nginx/sites-available/$sitename" ];
+		if [ ! -f "$DIR/config/nginx/sites-available/$sitename" ];
 			then
 				echo "Sorry, this site is not available."
 				exit;
 		fi
 
-		rm ./config/nginx/sites-available/$sitename
+		rm $DIR/config/nginx/sites-available/$sitename
 
-		rm -rf www/$sitename
+		rm -rf $DIR/www/$sitename
 
-		docker-compose exec --user root mysql mysql -u root -ppassword -e "drop database if exists $dbname;";
+		docker-compose -f $DIR/docker-compose.yml exec --user root mysql mysql -u root -ppassword -e "drop database if exists $dbname;";
 	elif [ "$action" == "list" ]
 	then
-		for entry in "./config/nginx/sites-available"/*
+		for entry in "$DIR/config/nginx/sites-available"/*
 		do
 		  echo ${entry##*/}
 		done
