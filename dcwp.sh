@@ -46,6 +46,8 @@ if [ "$action" == "create" ]
 		mkdir $DIR/www/$sitename/htdocs
 		mkdir $DIR/www/$sitename/logs
 
+		chown -R www-data: $DIR/www/
+
 		docker-compose -f $DIR/docker-compose.yml exec --user root nginx ln -s /etc/nginx/sites-available/$sitename /etc/nginx/sites-enabled/$sitename
 		docker-compose -f $DIR/docker-compose.yml exec --user root nginx service nginx restart
 
