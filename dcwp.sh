@@ -61,30 +61,54 @@ if [ "$action" == "create" ]
 			echo "WordPress config file not found. Installing..."
 			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath download
 			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath config --dbhost=mysql --dbname=$dbname --dbuser=root --dbpass=password
-			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath install --url="$sitename" --prompt
+			docker-compose -f $DIR/docker-compose.yml exec --user www-data phpfpm wp core --path=$wpsitepath install --url="$sitename" --skip-email=y --prompt=title,admin_user,admin_password,admin_email
 		fi
 
 		if [ ! -z "$3" ]
 			then
 				echo "$3" | sudo -S sh -c "echo '127.0.0.1 $sitename' >> /etc/hosts";
 		fi
-	elif [ "$action" == "delete" ]
-	then
-		if [ ! -f "$DIR/config/nginx/sites-available/$sitename" ];
-			then
-				echo "Sorry, this site is not available."
-				exit;
-		fi
+elif [ "$action" == "delete" ]
+then
+	if [ ! -f "$DIR/config/nginx/sites-available/$sitename" ];
+		then
+			echo "Sorry, this site is not available."
+			exit;
+	fi
 
-		rm $DIR/config/nginx/sites-available/$sitename
+	rm $DIR/config/nginx/sites-available/$sitename
 
-		rm -rf $DIR/www/$sitename
+	rm -rf $DIR/www/$sitename
 
-		docker-compose -f $DIR/docker-compose.yml exec --user root mysql mysql -u root -ppassword -e "drop database if exists $dbname;";
-	elif [ "$action" == "list" ]
-	then
-		for entry in "$DIR/config/nginx/sites-available"/*
-		do
-		  echo ${entry##*/}
-		done
+	docker-compose -f $DIR/docker-compose.yml exec --user root mysql mysql -u root -ppassword -e "drop database if exists $dbname;";
+elif [ "$action" == "list" ]
+then
+	for entry in "$DIR/config/nginx/sites-available"/*
+	do
+	  echo ${entry##*/}
+	done
+elif [ "$action" == "createempty" ]
+then
+	if [ -f "$DIR/config/nginx/sites-available/$sitename" ];
+		then
+			echo "Site is already exist."
+			exit;
+	fi
+	sed "s/{domain_name}/$sitename/g" $DIR/config/templates/virtualhost > $DIR/config/nginx/sites-available/$sitename
+
+
+	mkdir $DIR/www/$sitename
+	mkdir $DIR/www/$sitename/conf
+	mkdir $DIR/www/$sitename/htdocs
+	mkdir $DIR/www/$sitename/logs
+
+	chown -R www-data: $DIR/www/
+
+	docker-compose -f $DIR/docker-compose.yml exec --user root nginx ln -s /etc/nginx/sites-available/$sitename /etc/nginx/sites-enabled/$sitename
+	docker-compose -f $DIR/docker-compose.yml exec --user root nginx service nginx restart
+
+	if [ ! -z "$3" ]
+		then
+			echo "$3" | sudo -S sh -c "echo '127.0.0.1 $sitename' >> /etc/hosts";
+	fi
 fi
