@@ -23,7 +23,7 @@ fi
 sitename=$1
 action="create"
 
-dbname=$( echo "$sitename" | sed 's/\./_/g')
+dbname=$( echo "$sitename" | sed 's/\./_/g'  | sed 's/\-/_/g' )
 
 if [ ! -z "$2" ]
 then
@@ -45,6 +45,8 @@ if [ "$action" == "create" ]
 		mkdir $DIR/www/$sitename/conf
 		mkdir $DIR/www/$sitename/htdocs
 		mkdir $DIR/www/$sitename/logs
+		touch $DIR/www/$sitename/logs/access.log
+		touch $DIR/www/$sitename/logs/error.log
 
 		chown -R www-data: $DIR/www/
 
