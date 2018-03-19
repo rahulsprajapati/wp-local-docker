@@ -30,16 +30,21 @@ The `/config/elasticsearch/plugins` folder is mapped to the plugins folder in th
 1. Now we can use dcwp.sh script to create wp sites. Follow below command.
 
 
-1. Create new site. 
+1. Create new site with WP Setup.
 	
 	./dcwp.sh {site_name} create/delete {root_password}
 	
-	example ./dcwp.sh test1.dev create/delete
+	example ./dcwp.sh test1.local create/delete
 	```
 	Note: if you want to add a entry to your /etc/hosts with this script then add 3rd arg for root password. This will be needed to write /etc/hosts file.
 	```
 2. ./dcwp.sh site list 
 	This will list all the created sites.
+3. Create new php empty site without any installation of WP.
+	./dcwp.sh {site_name} createempty {root_password}
+
+    example ./dcwp.sh test1.local create/delete
+
 
 > You can create dcwp.sh as global command by creating a symlink to your user bin dir. ex. ln -s ./dcwp.sh /usr/bin/dcwp 
 
